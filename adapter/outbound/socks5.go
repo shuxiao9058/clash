@@ -31,6 +31,7 @@ type Socks5Option struct {
 	UserName       string `proxy:"username,omitempty"`
 	Password       string `proxy:"password,omitempty"`
 	TLS            bool   `proxy:"tls,omitempty"`
+	SNI            string `proxy:"sni,omitempty"`
 	UDP            bool   `proxy:"udp,omitempty"`
 	SkipCertVerify bool   `proxy:"skip-cert-verify,omitempty"`
 }
@@ -141,9 +142,14 @@ func (ss *Socks5) ListenPacketContext(ctx context.Context, metadata *C.Metadata,
 func NewSocks5(option Socks5Option) *Socks5 {
 	var tlsConfig *tls.Config
 	if option.TLS {
+		sni := option.Server
+		if option.SNI != "" {
+			sni = option.SNI
+		}
+
 		tlsConfig = &tls.Config{
 			InsecureSkipVerify: option.SkipCertVerify,
-			ServerName:         option.Server,
+			ServerName:         sni,
 		}
 	}
 
